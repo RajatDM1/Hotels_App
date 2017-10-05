@@ -1,0 +1,36 @@
+<% include partials/header %> 
+<div class="container">
+	<header class="jumbotron">
+		<div class="container">
+				<h1>This is the rooms page.</h1>
+				<p>View are favourite Hotels</p>	
+				<p>
+					<a class="btn btn-primary btn-large" href="/hotels/new">Add New Hotels</a>
+				</p>
+		</div>
+	</header>	
+
+	<div class="row text-center" style="display:flex; flex-wrap:wrap;">
+		<% hotels.forEach(function(hotel){ %>
+		<div class="col-md-3 col-sm-6">
+			<div class="thumbnail">
+				<img src="<%= hotel.image %>">
+				<div class="caption">
+					<h4> <%= hotel.name %></h4>
+				</div>
+				<p>
+				<a href="/hotels/<%hotels._id%>" class="btn btn-primary">More info</a>
+				</p>
+			</div>
+		</div>
+		<%	}); %>
+	</div>
+
+</div>
+
+
+
+
+
+
+<% include partials/footer %>
