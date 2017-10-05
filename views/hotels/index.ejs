@@ -1,4 +1,4 @@
-<% include partials/header %> 
+<% include   ./partials/header %> 
 <div class="container">
 	<header class="jumbotron">
 		<div class="container">
@@ -19,7 +19,7 @@
 					<h4> <%= hotel.name %></h4>
 				</div>
 				<p>
-				<a href="/hotels/<%hotels._id%>" class="btn btn-primary">More info</a>
+				<a href="/hotels/<%= hotel._id %>" class="btn btn-primary">More info</a>
 				</p>
 			</div>
 		</div>
