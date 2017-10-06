@@ -10,6 +10,8 @@ seedDB();
 mongoose.connect("mongodb://localhost/hotels");
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
+app.use(express.static(__dirname+"/public"));
+console.log(__dirname);
 
 //SCHEMA SETUP
 // var hotelSchema = new mongoose.Schema({
