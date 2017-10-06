@@ -4,7 +4,10 @@ var express 	= require('express'),
     mongoose 	= require('mongoose'),
     Hotel 		= require('./models/hotels'),
     seedDB 		= require('./seeds1'),
-    Comment 	= require('./models/comments')
+    Comment 	= require('./models/comments'),
+    passport 	= require('passport'),
+    User 		= require('./models/User'),
+    LocalStrategy = require('passport-local');
 
 seedDB();
 mongoose.connect("mongodb://localhost/hotels");
@@ -13,6 +16,23 @@ app.set("view engine", "ejs");
 app.use(express.static(__dirname+"/public"));
 console.log(__dirname);
 
+//middleware for currentUser
+app.use(function(req,res,next){
+	res.locals.currentUser = req.user;
+	next();
+});
+
+app.use(require('express-session')({
+	secret: "This is the secret",
+	resave : false,
+	saveUninitialized : false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 //SCHEMA SETUP
 // var hotelSchema = new mongoose.Schema({
 // 	name : String,
@@ -61,7 +81,7 @@ app.get('/hotels',function(req,res)
 		if(err){
 			console.log(err);
 		}else{
-			res.render('hotels/index',{hotels:allhotels});
+			res.render('hotels/index',{hotels:allhotels, currentUser : req.user});
 		}
 	});		
 });
@@ -98,7 +118,7 @@ app.get('/hotels/:id',function(req,res){
 
 
 //comments routes
-app.get('/hotels/:id/comments/new',function(req,res){
+app.get('/hotels/:id/comments/new',isLoggedIn,function(req,res){
 	Hotel.findById(req.params.id,function(err,newHotel){
 		if(err){
 			console.log(err);
@@ -109,7 +129,7 @@ app.get('/hotels/:id/comments/new',function(req,res){
 	})
 });
 
-app.post('/hotels/:id/comments',function(req,res){
+app.post('/hotels/:id/comments',isLoggedIn,function(req,res){
 	Hotel.findById(req.params.id,function(err,newhotel){
 		if(err){
 			console.log(err);
@@ -129,7 +149,49 @@ app.post('/hotels/:id/comments',function(req,res){
 })
 
 
+//auth routes
+app.get('/register',function(req,res){
+	res.render('register');
+});
 
+app.post('/register',function(req,res){
+	var newUser = new User({username : req.body.username});
+	User.register(newUser, req.body.password,function(err,user){
+		if(err){
+			console.log(err);
+			return res.render("register");
+		}
+		passport.authenticate('local')(req,res,function(){
+			res.redirect('/hotels');
+		});
+	});
+});
+
+//show login form 
+app.get('/login',function(req,res){
+	res.render('login');
+});
+
+//middleware
+app.post('/login',passport.authenticate('local',
+	{successRedirect :'/hotels',
+	failureRedirect : '/login'}),function(req,res){
+	
+});
+
+//logout
+app.get('/logout',function(req,res){
+	req.logout();
+	res.redirect('/hotels');
+});
+
+//middleware
+function isLoggedIn(req,res,next){
+	if(req.isAuthenticated()){
+		return next();
+	}
+	res.redirect('/login');
+}
 
 
 
