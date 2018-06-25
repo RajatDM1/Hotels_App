@@ -6,7 +6,8 @@ var bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
-app.listen(3000,function(req,res)
+app.listen((process.env.PORT || 5000)
+,function(req,res)
 {
 	console.log('server is running');
 });
